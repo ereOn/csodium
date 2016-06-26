@@ -1,7 +1,7 @@
 .. _index:
 
 csodium - Documentation
-======================
+=======================
 
 `csodium` a standalone `libsodium` interface.
 
