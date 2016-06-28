@@ -9,6 +9,26 @@
 
 **csodium** is a Python 2/3 standalone interface for `libsodium`.
 
+## Rationale
+
+`csodium` was started as the result of a
+[disagreement](https://github.com/stef/pysodium/issues/45) with `pysodium`
+maintainers. They wanted the library to remain a simple wrapper (using `ctypes`
+to dynamically load `libsodium` at runtime, mainly to always use the latest
+system available `libsodium`) while we wanted it to be a standalone package
+that would work out of the box, especially for Windows/Mac OSX wheel users.
+The goal being they would not need to install/compile `libsodium` and could
+just do `pip install` to get things started.
+
+As an attempt to make the best out of those two opinions, `csodium` was
+initiated, which aims at providing an out-of-the-box, ready-to-use `libsodium`
+Python interface while still giving the ability to Linux and OSX users to
+recompile and/or use the latest available `libsodium` if they want to.
+
+`csodium` aims to be compatible with `pysodium`, but there is **no syncing** of
+any kind between the two projects as of now, so their APIs might diverge in the
+future.
+
 ## Installation
 
 You may install it by using `pip`:
