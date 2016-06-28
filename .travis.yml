@@ -1,11 +1,17 @@
 language: python
 python:
-- '2.7'
 - '3.5'
 sudo: true
 install:
 - pip install tox
 - pip install coveralls
+- wget https://github.com/jedisct1/libsodium/releases/download/1.0.10/libsodium-1.0.10.tar.gz
+- tar zxvf libsodium-1.0.10.tar.gz
+- cd libsodium-1.0.10
+- ./autogen.sh
+- ./configure && make check
+- sudo make install
+- sudo ldconfig
 script:
 - tox
 after_success:
