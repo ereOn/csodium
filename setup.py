@@ -21,8 +21,14 @@ bindings. It does not require any libsodium installation on the target system.
     packages=find_packages(exclude=[
         'tests',
     ]),
-    install_requires=[
+    setup_requires=[
+        'cffi>=1.7.0,<2',
     ],
+    install_requires=[
+        'cffi>=1.7.0,<2',
+        'six>=1.10.0,<2',
+    ],
+    cffi_modules=["csodium/_build.py:ffi"],
     test_suite='tests',
     classifiers=[
         'Intended Audience :: Developers',
