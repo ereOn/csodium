@@ -9,7 +9,7 @@ from ._impl import (
     lib,
 )
 
-if lib.sodium_init() < 0:
+if lib.sodium_init() < 0:  # pragma: no cover
     raise RuntimeError("libsodium initialization failed")
 
 
