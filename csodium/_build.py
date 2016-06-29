@@ -11,6 +11,7 @@ ffi = cffi.FFI()
 # Here we list the functions we use and import.
 ffi.cdef('''
 int sodium_init();
+const char* sodium_version_string();
 
 void randombytes(unsigned char* const buf, const unsigned long long buf_len);
 ''')
