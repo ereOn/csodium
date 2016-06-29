@@ -23,9 +23,13 @@ if sys.platform == 'win32':
         ('SODIUM_STATIC', '1'),
         ('SODIUM_EXPORT',),
     ]
+    extra_compile_args = []
 else:
     libraries = ['sodium']
     define_macros = []
+    extra_compile_args = [
+        '-Wno-unreachable-code',
+    ]
 
 # This creates a binary module `csodium._impl` that contains the imported
 # functions.
@@ -34,6 +38,7 @@ ffi.set_source(
     '#include <sodium.h>',
     libraries=libraries,
     define_macros=define_macros,
+    extra_compile_args=extra_compile_args,
 )
 
 if __name__ == '__main__':
