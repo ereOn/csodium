@@ -14,6 +14,15 @@ int sodium_init();
 const char* sodium_version_string();
 
 void randombytes(unsigned char* const buf, const unsigned long long buf_len);
+
+size_t crypto_box_boxzerobytes(void);
+size_t crypto_box_macbytes(void);
+size_t crypto_box_noncebytes(void);
+size_t crypto_box_publickeybytes(void);
+size_t crypto_box_sealbytes(void);
+size_t crypto_box_secretkeybytes(void);
+size_t crypto_box_seedbytes(void);
+size_t crypto_box_zerobytes(void);
 ''')
 
 # On Windows, we compile with libsodium statically, so that users of the wheel
