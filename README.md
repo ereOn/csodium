@@ -17,8 +17,12 @@ maintainers. They wanted the library to remain a simple wrapper (using `ctypes`
 to dynamically load `libsodium` at runtime, mainly to always use the latest
 system available `libsodium`) while we wanted it to be a standalone package
 that would work out of the box, especially for Windows/Mac OSX wheel users.
-The goal being they would not need to install/compile `libsodium` and could
+
+The goal being users should not need to install/compile `libsodium` and could
 just do `pip install` to get things started.
+
+Another point of conflict is the [support of Python
+3](https://github.com/stef/pysodium/issues/2).
 
 As an attempt to make the best out of those two opinions, `csodium` was
 initiated, which aims at providing an out-of-the-box, ready-to-use `libsodium`
@@ -28,6 +32,13 @@ recompile and/or use the latest available `libsodium` if they want to.
 `csodium` aims to be compatible with `pysodium`, but there is **no syncing** of
 any kind between the two projects as of now, so their APIs might diverge in the
 future.
+
+## Python 2 support on Windows
+
+Sadly, `libsodium` hasn't been supporting Visual Studio 2008 for a while and
+this is required to make binary packages for Python 2.7 on Windows. If you know
+of a simple way to compile `libsodium` using *Visual Studio for Python* that
+doesn't prevent upgrading `libsodium`, please contribute !
 
 ## Installation
 

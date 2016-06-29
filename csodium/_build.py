@@ -53,3 +53,5 @@ ffi.set_source(
 
 if __name__ == '__main__':
     ffi.compile()
+    # TODO: Investigate possible usage of ffi.dlopen() as an alternative to
+    # compilation.
