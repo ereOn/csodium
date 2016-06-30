@@ -33,6 +33,26 @@ recompile and/or use the latest available `libsodium` if they want to.
 any kind between the two projects as of now, so their APIs might diverge in the
 future.
 
+## API
+
+`csodium` aims at offering the whole `libsodium` API through its Python's
+bindings. However, it only offers a subset at the moment (`crypto_box` and
+`crypto_secretbox` family functions). I'm the sole contributor which explains
+why this API support improves slowly. If you are interested in making things
+faster, adding new functions is actually really simple and pull requests are
+most welcome ! Here is the guide:
+
+1. Find the exact `C` prototype of the function you wish to add support for and
+   add it to the `_build.py` module.
+2. Implement a meaningful Python version of that function in the `__init__.py`
+   module. You can get your inspiration from already defined function.
+3. Make sure you handle well incorrect input value and that you raise
+   appropriately on errors. See the `_raise_on_error` helper function.
+4. Write tests that cover input failures as well as at least a successful run.
+   Coverage should remain at 100%. Also remember that the goal is not to test
+   `libsodium` but the Python binding.
+5. Submit your pull request !
+
 ## Python 2 support on Windows
 
 Sadly, `libsodium` hasn't been supporting Visual Studio 2008 for a while and
