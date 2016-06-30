@@ -39,4 +39,5 @@ bindings. It does not require any libsodium installation on the target system.
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Development Status :: 5 - Production/Stable',
     ],
+    zip_safe=False,
 )

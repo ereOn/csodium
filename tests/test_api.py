@@ -209,6 +209,16 @@ def test_crypto_box_open_invalid_sk(nonce, pk):
         )
 
 
+def test_crypto_box_open_failure(nonce, pk, sk):
+    with pytest.raises(ValueError):
+        crypto_box_open(
+            c=b'x' * 100,
+            nonce=nonce,
+            pk=pk,
+            sk=sk,
+        )
+
+
 def test_crypto_box_open(nonce, pk, sk):
     c = crypto_box(
         msg=b'foo',
