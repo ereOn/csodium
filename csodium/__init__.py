@@ -22,9 +22,15 @@ def _raise_on_error(return_code):
         raise ValueError("Call returned %s" % return_code)
 
 
-def _assert_len(name, buf, size):
+def _assert_len(name, buf, size, max_size=None):
     assert buf, "%s cannot be NULL" % name
-    assert len(buf) == size, "%s must be %d byte(s) long" % (name, size)
+
+    if max_size:
+        assert size <= len(buf) <= max_size, (
+            "%s must be between %d and %d bytes long" % (name, size, max_size)
+        )
+    else:
+        assert len(buf) == size, "%s must be %d byte(s) long" % (name, size)
 
 
 # random family.
@@ -283,3 +289,66 @@ def crypto_secretbox_open(c, nonce, k):
     )
 
     return binary_type(msg)
+
+
+crypto_generichash_blake2b_BYTES_MIN = \
+    lib.crypto_generichash_blake2b_bytes_min()
+crypto_generichash_blake2b_BYTES_MAX = \
+    lib.crypto_generichash_blake2b_bytes_max()
+crypto_generichash_blake2b_BYTES = lib.crypto_generichash_blake2b_bytes()
+crypto_generichash_blake2b_KEYBYTES_MIN = \
+    lib.crypto_generichash_blake2b_keybytes_min()
+crypto_generichash_blake2b_KEYBYTES_MAX = \
+    lib.crypto_generichash_blake2b_keybytes_max()
+crypto_generichash_blake2b_KEYBYTES = lib.crypto_generichash_blake2b_keybytes()
+crypto_generichash_blake2b_SALTBYTES = \
+    lib.crypto_generichash_blake2b_saltbytes()
+crypto_generichash_blake2b_PERSONALBYTES = \
+    lib.crypto_generichash_blake2b_personalbytes()
+
+
+def crypto_generichash_blake2b_salt_personal(
+    in_,
+    key,
+    salt,
+    personal=None,
+    outlen=crypto_generichash_blake2b_BYTES_MAX,
+):
+    _assert_len(
+        'key',
+        key,
+        crypto_generichash_blake2b_KEYBYTES_MIN,
+        crypto_generichash_blake2b_KEYBYTES_MAX,
+    )
+    _assert_len('salt', salt, crypto_generichash_blake2b_SALTBYTES)
+
+    if personal is not None:
+        _assert_len(
+            'personal',
+            personal,
+            crypto_generichash_blake2b_PERSONALBYTES,
+        )
+
+    assert crypto_generichash_blake2b_BYTES_MIN <= outlen <= \
+        crypto_generichash_blake2b_BYTES_MAX, (
+            "outlen must be between %d and %d" % (
+                crypto_generichash_blake2b_BYTES_MIN,
+                crypto_generichash_blake2b_BYTES_MAX,
+            )
+        )
+
+    buf = bytearray(outlen)
+
+    _raise_on_error(
+        lib.crypto_generichash_blake2b_salt_personal(
+            ffi.from_buffer(buf),
+            outlen,
+            in_ if in_ is not None else ffi.NULL,
+            len(in_ or ()),
+            key,
+            len(key),
+            salt,
+            personal if personal is not None else ffi.NULL,
+        ),
+    )
+    return binary_type(buf)

@@ -113,6 +113,26 @@ int crypto_secretbox_open_easy(
     const unsigned char* n,
     const unsigned char* k
 );
+
+size_t crypto_generichash_blake2b_bytes_min(void);
+size_t crypto_generichash_blake2b_bytes_max(void);
+size_t crypto_generichash_blake2b_bytes(void);
+size_t crypto_generichash_blake2b_keybytes_min(void);
+size_t crypto_generichash_blake2b_keybytes_max(void);
+size_t crypto_generichash_blake2b_keybytes(void);
+size_t crypto_generichash_blake2b_saltbytes(void);
+size_t crypto_generichash_blake2b_personalbytes(void);
+
+int crypto_generichash_blake2b_salt_personal(
+    uint8_t* out,
+    const uint8_t outlen,
+    const void* in,
+    const uint64_t inlen,
+    const void* key,
+    uint8_t keylen,
+    const void* salt,
+    const void* personal
+);
 ''')
 
 # On Windows, we compile with libsodium statically, so that users of the wheel

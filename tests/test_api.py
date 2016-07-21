@@ -28,6 +28,10 @@ from csodium import (
     crypto_secretbox,
     crypto_secretbox_open,
     randombytes,
+    crypto_generichash_blake2b_KEYBYTES,
+    crypto_generichash_blake2b_SALTBYTES,
+    crypto_generichash_blake2b_PERSONALBYTES,
+    crypto_generichash_blake2b_salt_personal,
 )
 
 
@@ -56,6 +60,21 @@ def k(pk, sk):
 @pytest.fixture
 def mac():
     return b'x' * crypto_box_MACBYTES
+
+
+@pytest.fixture
+def key():
+    return b'x' * crypto_generichash_blake2b_KEYBYTES
+
+
+@pytest.fixture
+def salt():
+    return b'x' * crypto_generichash_blake2b_SALTBYTES
+
+
+@pytest.fixture
+def personal():
+    return b'x' * crypto_generichash_blake2b_PERSONALBYTES
 
 
 def test_version():
@@ -473,3 +492,66 @@ def test_crypto_secretbox_open(nonce, k):
         k=k,
     )
     assert msg == b'foo'
+
+
+def test_crypto_generichash_blake2b_salt_key_too_short(salt):
+    with pytest.raises(AssertionError):
+        crypto_generichash_blake2b_salt_personal(
+            in_=None,
+            key=b'1',
+            salt=salt,
+            personal=None,
+        )
+
+
+def test_crypto_generichash_blake2b_salt_salt_too_short(key):
+    with pytest.raises(AssertionError):
+        crypto_generichash_blake2b_salt_personal(
+            in_=None,
+            key=key,
+            salt=b'x',
+            personal=None,
+        )
+
+
+def test_crypto_generichash_blake2b_salt_personal_too_short(key, salt):
+    with pytest.raises(AssertionError):
+        crypto_generichash_blake2b_salt_personal(
+            in_=None,
+            key=key,
+            salt=salt,
+            personal=b'x',
+        )
+
+
+def test_crypto_generichash_blake2b_salt_invalid_outlen(key, salt, personal):
+    with pytest.raises(AssertionError):
+        crypto_generichash_blake2b_salt_personal(
+            in_=None,
+            key=key,
+            salt=salt,
+            personal=personal,
+            outlen=1,
+        )
+
+
+def test_crypto_generichash_blake2b_salt_personal(key, salt, personal):
+    out = crypto_generichash_blake2b_salt_personal(
+        in_=None,
+        key=key,
+        salt=salt,
+        personal=personal,
+    )
+    assert isinstance(out, binary_type)
+
+
+def test_crypto_generichash_blake2b_salt(key, salt):
+    out = crypto_generichash_blake2b_salt_personal(
+        in_=None,
+        key=key,
+        salt=salt,
+        personal=None,
+        outlen=35,
+    )
+    assert isinstance(out, binary_type)
+    assert len(out) == 35
