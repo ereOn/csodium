@@ -33,6 +33,14 @@ def _assert_len(name, buf, size, max_size=None):
         assert len(buf) == size, "%s must be %d byte(s) long" % (name, size)
 
 
+def _assert_min_len(name, buf, min_size):
+    assert buf, "%s cannot be NULL" % name
+
+    assert min_size <= len(buf), (
+            "%s must be at least %d bytes long" % (name, min_size)
+        )
+
+
 # random family.
 def randombytes(size):
     buf = bytearray(size)
@@ -134,6 +142,7 @@ def crypto_box_afternm(msg, nonce, k):
 
 
 def crypto_box_open(c, nonce, pk, sk):
+    _assert_min_len('c', c, crypto_box_MACBYTES)
     _assert_len('nonce', nonce, crypto_box_NONCEBYTES)
     _assert_len('pk', pk, crypto_box_PUBLICKEYBYTES)
     _assert_len('sk', sk, crypto_box_SECRETKEYBYTES)
@@ -154,6 +163,7 @@ def crypto_box_open(c, nonce, pk, sk):
 
 
 def crypto_box_open_afternm(c, nonce, k):
+    _assert_min_len('c', c, crypto_box_MACBYTES)
     _assert_len('nonce', nonce, crypto_box_NONCEBYTES)
     _assert_len('k', k, crypto_box_BEFORENMBYTES)
 
@@ -188,6 +198,7 @@ def crypto_box_seal(msg, pk):
 
 
 def crypto_box_seal_open(c, pk, sk):
+    _assert_min_len('c', c, crypto_box_SEALBYTES)
     _assert_len('pk', pk, crypto_box_PUBLICKEYBYTES)
     _assert_len('sk', sk, crypto_box_SECRETKEYBYTES)
 
@@ -274,6 +285,7 @@ def crypto_secretbox(msg, nonce, k):
 
 
 def crypto_secretbox_open(c, nonce, k):
+    _assert_min_len('c', c, crypto_secretbox_MACBYTES)
     _assert_len('nonce', nonce, crypto_secretbox_NONCEBYTES)
     _assert_len('k', k, crypto_secretbox_KEYBYTES)
 
