@@ -370,6 +370,7 @@ crypto_sign_SEEDBYTES = lib.crypto_sign_seedbytes()
 crypto_sign_PUBLICKEYBYTES = lib.crypto_sign_publickeybytes()
 crypto_sign_SECRETKEYBYTES = lib.crypto_sign_secretkeybytes()
 
+
 def crypto_sign_keypair():
     pk = bytearray(crypto_sign_PUBLICKEYBYTES)
     sk = bytearray(crypto_sign_SECRETKEYBYTES)
@@ -381,6 +382,7 @@ def crypto_sign_keypair():
     )
 
     return binary_type(pk), binary_type(sk)
+
 
 def crypto_sign_seed_keypair(seed):
     _assert_len('seed', seed, crypto_sign_SEEDBYTES)
@@ -397,6 +399,7 @@ def crypto_sign_seed_keypair(seed):
 
     return binary_type(pk), binary_type(sk)
 
+
 def crypto_sign(msg, sk):
     _assert_len('sk', sk, crypto_sign_SECRETKEYBYTES)
 
@@ -412,6 +415,7 @@ def crypto_sign(msg, sk):
     )
 
     return binary_type(signed_msg)
+
 
 def crypto_sign_open(signed_msg, pk):
     _assert_min_len('signed_msg', signed_msg, crypto_sign_BYTES)
@@ -431,10 +435,11 @@ def crypto_sign_open(signed_msg, pk):
     return binary_type(msg)
 
 # ed25519 sign specific functions
-crypto_sign_ed25519_SEEDBYTES =  lib.crypto_sign_ed25519_seedbytes()
+crypto_sign_ed25519_SEEDBYTES = lib.crypto_sign_ed25519_seedbytes()
 crypto_sign_ed25519_PUBLICKEYBYTES = lib.crypto_sign_ed25519_publickeybytes()
 crypto_sign_ed25519_SECRETKEYBYTES = lib.crypto_sign_ed25519_secretkeybytes()
-crypto_scalarmult_curve25519_BYTES =  lib.crypto_scalarmult_curve25519_bytes()
+crypto_scalarmult_curve25519_BYTES = lib.crypto_scalarmult_curve25519_bytes()
+
 
 def crypto_sign_ed25519_pk_to_curve25519(ed25519_pk):
     _assert_len("ed25519_pk", ed25519_pk, crypto_sign_ed25519_PUBLICKEYBYTES)
@@ -448,6 +453,7 @@ def crypto_sign_ed25519_pk_to_curve25519(ed25519_pk):
 
     return binary_type(curve25519_pk)
 
+
 def crypto_sign_ed25519_sk_to_curve25519(ed25519_sk):
     _assert_len("ed25519_sk", ed25519_sk, crypto_sign_ed25519_SECRETKEYBYTES)
     curve25519_sk = bytearray(crypto_scalarmult_curve25519_BYTES)
@@ -460,6 +466,7 @@ def crypto_sign_ed25519_sk_to_curve25519(ed25519_sk):
 
     return binary_type(curve25519_sk)
 
+
 def crypto_sign_ed25519_sk_to_seed(sk):
     _assert_len("sk", sk, crypto_sign_ed25519_SECRETKEYBYTES)
     seed = bytearray(crypto_sign_ed25519_SEEDBYTES)
@@ -471,6 +478,7 @@ def crypto_sign_ed25519_sk_to_seed(sk):
     )
 
     return binary_type(seed)
+
 
 def crypto_sign_ed25519_sk_to_pk(sk):
     _assert_len("sk", sk, crypto_sign_ed25519_SECRETKEYBYTES)

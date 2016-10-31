@@ -93,7 +93,6 @@ def personal():
     return b'x' * crypto_generichash_blake2b_PERSONALBYTES
 
 
-
 @pytest.fixture
 def sign_pk():
     pk, _ = crypto_sign_seed_keypair(b'x' * crypto_sign_SEEDBYTES)
@@ -591,9 +590,11 @@ def test_crypto_sign_keypair():
     assert len(pk) == crypto_sign_PUBLICKEYBYTES
     assert len(sk) == crypto_sign_SECRETKEYBYTES
 
+
 def test_crypto_sign_seed_keypair_invalid_seed():
     with pytest.raises(AssertionError):
         crypto_sign_seed_keypair(b'invalid')
+
 
 def test_crypto_sign_seed_keypair():
     pk, sk = crypto_sign_seed_keypair(b'x' * crypto_sign_SEEDBYTES)
@@ -608,8 +609,9 @@ def test_crypto_sign_invalid_pk():
             sk=b'',
         )
 
+
 def test_crypto_sign(sign_sk):
-    msg=b'foo'
+    msg = b'foo'
     signed_msg = crypto_sign(
         msg=msg,
         sk=sign_sk,
@@ -625,12 +627,14 @@ def test_crypto_sign_open_invalid_pk():
             pk=b'',
         )
 
+
 def test_crypto_sign_open_failure(sign_pk):
     with pytest.raises(ValueError):
         crypto_sign_open(
             signed_msg=b'x' * 100,
             pk=sign_pk,
         )
+
 
 def test_crypto_sign_open(sign_pk, sign_sk):
     signed_msg = crypto_sign(
@@ -648,30 +652,45 @@ def test_crypto_sign_ed25519_pk_to_curve25519_invalid_pk():
     with pytest.raises(AssertionError):
         crypto_sign_ed25519_pk_to_curve25519(b'invalid')
 
+
 def test_crypto_sign_ed25519_pk_to_curve25519():
-    curve_pk = crypto_sign_ed25519_pk_to_curve25519(b'x' * crypto_sign_ed25519_PUBLICKEYBYTES)
+    curve_pk = crypto_sign_ed25519_pk_to_curve25519(
+        b'x' * crypto_sign_ed25519_PUBLICKEYBYTES
+    )
     assert len(curve_pk) == crypto_scalarmult_curve25519_BYTES
+
 
 def test_crypto_sign_ed25519_sk_to_curve25519_invalid_sk():
     with pytest.raises(AssertionError):
         crypto_sign_ed25519_sk_to_curve25519(b'invalid')
 
+
 def test_crypto_sign_ed25519_sk_to_curve25519():
-    curve_sk = crypto_sign_ed25519_sk_to_curve25519(b'x' * crypto_sign_ed25519_SECRETKEYBYTES)
+    curve_sk = crypto_sign_ed25519_sk_to_curve25519(
+        b'x' * crypto_sign_ed25519_SECRETKEYBYTES
+    )
     assert len(curve_sk) == crypto_scalarmult_curve25519_BYTES
+
 
 def test_crypto_sign_ed25519_sk_to_seed_invalid_sk():
     with pytest.raises(AssertionError):
         crypto_sign_ed25519_sk_to_seed(b'invalid')
 
+
 def test_crypto_sign_ed25519_sk_to_seed():
-    seed = crypto_sign_ed25519_sk_to_seed(b'x' * crypto_sign_ed25519_SECRETKEYBYTES)
+    seed = crypto_sign_ed25519_sk_to_seed(
+        b'x' * crypto_sign_ed25519_SECRETKEYBYTES
+    )
     assert len(seed) == crypto_sign_ed25519_SEEDBYTES
+
 
 def test_crypto_sign_ed25519_sk_to_pk_invalid_sk():
     with pytest.raises(AssertionError):
         crypto_sign_ed25519_sk_to_pk(b'invalid')
 
+
 def test_crypto_sign_ed25519_sk_to_pk():
-    pk = crypto_sign_ed25519_sk_to_pk(b'x' * crypto_sign_ed25519_SECRETKEYBYTES)
+    pk = crypto_sign_ed25519_sk_to_pk(
+        b'x' * crypto_sign_ed25519_SECRETKEYBYTES
+    )
     assert len(pk) == crypto_sign_ed25519_PUBLICKEYBYTES
