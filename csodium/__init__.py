@@ -47,7 +47,6 @@ def randombytes(size):
     lib.randombytes(ffi.cast("unsigned char *", ffi.from_buffer(buf)), size)
     return binary_type(buf)
 
-
 # crypto_box family.
 crypto_box_BEFORENMBYTES = lib.crypto_box_beforenmbytes()
 crypto_box_MACBYTES = lib.crypto_box_macbytes()
@@ -364,3 +363,123 @@ def crypto_generichash_blake2b_salt_personal(
         ),
     )
     return binary_type(buf)
+
+# crypto_sign family
+crypto_sign_BYTES = lib.crypto_sign_bytes()
+crypto_sign_SEEDBYTES = lib.crypto_sign_seedbytes()
+crypto_sign_PUBLICKEYBYTES = lib.crypto_sign_publickeybytes()
+crypto_sign_SECRETKEYBYTES = lib.crypto_sign_secretkeybytes()
+
+def crypto_sign_keypair():
+    pk = bytearray(crypto_sign_PUBLICKEYBYTES)
+    sk = bytearray(crypto_sign_SECRETKEYBYTES)
+    _raise_on_error(
+        lib.crypto_sign_keypair(
+            ffi.cast("unsigned char *", ffi.from_buffer(pk)),
+            ffi.cast("unsigned char *", ffi.from_buffer(sk)),
+        ),
+    )
+
+    return binary_type(pk), binary_type(sk)
+
+def crypto_sign_seed_keypair(seed):
+    _assert_len('seed', seed, crypto_sign_SEEDBYTES)
+
+    pk = bytearray(crypto_sign_PUBLICKEYBYTES)
+    sk = bytearray(crypto_sign_SECRETKEYBYTES)
+    _raise_on_error(
+        lib.crypto_sign_seed_keypair(
+            ffi.cast("unsigned char *", ffi.from_buffer(pk)),
+            ffi.cast("unsigned char *", ffi.from_buffer(sk)),
+            seed,
+        ),
+    )
+
+    return binary_type(pk), binary_type(sk)
+
+def crypto_sign(msg, sk):
+    _assert_len('sk', sk, crypto_sign_SECRETKEYBYTES)
+
+    signed_msg = bytearray(crypto_sign_BYTES + len(msg))
+    _raise_on_error(
+        lib.crypto_sign(
+            ffi.cast("unsigned char *", ffi.from_buffer(signed_msg)),
+            ffi.NULL,
+            msg,
+            len(msg),
+            sk,
+        ),
+    )
+
+    return binary_type(signed_msg)
+
+def crypto_sign_open(signed_msg, pk):
+    _assert_min_len('signed_msg', signed_msg, crypto_sign_BYTES)
+    _assert_len('pk', pk, crypto_sign_PUBLICKEYBYTES)
+
+    msg = bytearray(len(signed_msg) - crypto_sign_BYTES)
+    _raise_on_error(
+        lib.crypto_sign_open(
+            ffi.cast("unsigned char *", ffi.from_buffer(msg)),
+            ffi.NULL,
+            signed_msg,
+            len(signed_msg),
+            pk,
+        ),
+    )
+
+    return binary_type(msg)
+
+# ed25519 sign specific functions
+crypto_sign_ed25519_SEEDBYTES =  lib.crypto_sign_ed25519_seedbytes()
+crypto_sign_ed25519_PUBLICKEYBYTES = lib.crypto_sign_ed25519_publickeybytes()
+crypto_sign_ed25519_SECRETKEYBYTES = lib.crypto_sign_ed25519_secretkeybytes()
+crypto_scalarmult_curve25519_BYTES =  lib.crypto_scalarmult_curve25519_bytes()
+
+def crypto_sign_ed25519_pk_to_curve25519(ed25519_pk):
+    _assert_len("ed25519_pk", ed25519_pk, crypto_sign_ed25519_PUBLICKEYBYTES)
+    curve25519_pk = bytearray(crypto_scalarmult_curve25519_BYTES)
+    _raise_on_error(
+        lib.crypto_sign_ed25519_pk_to_curve25519(
+            ffi.cast("unsigned char *", ffi.from_buffer(curve25519_pk)),
+            ffi.cast("unsigned char *", ffi.from_buffer(ed25519_pk)),
+        ),
+    )
+
+    return binary_type(curve25519_pk)
+
+def crypto_sign_ed25519_sk_to_curve25519(ed25519_sk):
+    _assert_len("ed25519_sk", ed25519_sk, crypto_sign_ed25519_SECRETKEYBYTES)
+    curve25519_sk = bytearray(crypto_scalarmult_curve25519_BYTES)
+    _raise_on_error(
+        lib.crypto_sign_ed25519_sk_to_curve25519(
+            ffi.cast("unsigned char *", ffi.from_buffer(curve25519_sk)),
+            ffi.cast("unsigned char *", ffi.from_buffer(ed25519_sk)),
+        ),
+    )
+
+    return binary_type(curve25519_sk)
+
+def crypto_sign_ed25519_sk_to_seed(sk):
+    _assert_len("sk", sk, crypto_sign_ed25519_SECRETKEYBYTES)
+    seed = bytearray(crypto_sign_ed25519_SEEDBYTES)
+    _raise_on_error(
+        lib.crypto_sign_ed25519_sk_to_seed(
+            ffi.cast("unsigned char *", ffi.from_buffer(seed)),
+            sk,
+        ),
+    )
+
+    return binary_type(seed)
+
+def crypto_sign_ed25519_sk_to_pk(sk):
+    _assert_len("sk", sk, crypto_sign_ed25519_SECRETKEYBYTES)
+    pk = bytearray(crypto_sign_ed25519_PUBLICKEYBYTES)
+    _raise_on_error(
+        lib.crypto_sign_ed25519_sk_to_pk(
+            ffi.cast("unsigned char *", ffi.from_buffer(pk)),
+            sk,
+        ),
+    )
+
+    return binary_type(pk)

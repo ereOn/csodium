@@ -32,6 +32,22 @@ from csodium import (
     crypto_generichash_blake2b_SALTBYTES,
     crypto_generichash_blake2b_PERSONALBYTES,
     crypto_generichash_blake2b_salt_personal,
+    crypto_sign_BYTES,
+    crypto_sign_SEEDBYTES,
+    crypto_sign_PUBLICKEYBYTES,
+    crypto_sign_SECRETKEYBYTES,
+    crypto_sign_keypair,
+    crypto_sign_seed_keypair,
+    crypto_sign,
+    crypto_sign_open,
+    crypto_sign_ed25519_PUBLICKEYBYTES,
+    crypto_sign_ed25519_SECRETKEYBYTES,
+    crypto_sign_ed25519_SEEDBYTES,
+    crypto_scalarmult_curve25519_BYTES,
+    crypto_sign_ed25519_pk_to_curve25519,
+    crypto_sign_ed25519_sk_to_curve25519,
+    crypto_sign_ed25519_sk_to_seed,
+    crypto_sign_ed25519_sk_to_pk,
 )
 
 
@@ -75,6 +91,19 @@ def salt():
 @pytest.fixture
 def personal():
     return b'x' * crypto_generichash_blake2b_PERSONALBYTES
+
+
+
+@pytest.fixture
+def sign_pk():
+    pk, _ = crypto_sign_seed_keypair(b'x' * crypto_sign_SEEDBYTES)
+    return pk
+
+
+@pytest.fixture
+def sign_sk():
+    _, sk = crypto_sign_seed_keypair(b'x' * crypto_sign_SEEDBYTES)
+    return sk
 
 
 def test_version():
@@ -555,3 +584,94 @@ def test_crypto_generichash_blake2b_salt(key, salt):
     )
     assert isinstance(out, binary_type)
     assert len(out) == 35
+
+
+def test_crypto_sign_keypair():
+    pk, sk = crypto_sign_keypair()
+    assert len(pk) == crypto_sign_PUBLICKEYBYTES
+    assert len(sk) == crypto_sign_SECRETKEYBYTES
+
+def test_crypto_sign_seed_keypair_invalid_seed():
+    with pytest.raises(AssertionError):
+        crypto_sign_seed_keypair(b'invalid')
+
+def test_crypto_sign_seed_keypair():
+    pk, sk = crypto_sign_seed_keypair(b'x' * crypto_sign_SEEDBYTES)
+    assert len(pk) == crypto_sign_PUBLICKEYBYTES
+    assert len(sk) == crypto_sign_SECRETKEYBYTES
+
+
+def test_crypto_sign_invalid_pk():
+    with pytest.raises(AssertionError):
+        crypto_sign(
+            msg=b'foo',
+            sk=b'',
+        )
+
+def test_crypto_sign(sign_sk):
+    msg=b'foo'
+    signed_msg = crypto_sign(
+        msg=msg,
+        sk=sign_sk,
+    )
+    assert isinstance(signed_msg, binary_type)
+    assert len(signed_msg) == len(msg) + crypto_sign_BYTES
+
+
+def test_crypto_sign_open_invalid_pk():
+    with pytest.raises(AssertionError):
+        crypto_sign_open(
+            signed_msg=b'x' * 100,
+            pk=b'',
+        )
+
+def test_crypto_sign_open_failure(sign_pk):
+    with pytest.raises(ValueError):
+        crypto_sign_open(
+            signed_msg=b'x' * 100,
+            pk=sign_pk,
+        )
+
+def test_crypto_sign_open(sign_pk, sign_sk):
+    signed_msg = crypto_sign(
+        msg=b'foo',
+        sk=sign_sk,
+    )
+    msg = crypto_sign_open(
+        signed_msg=signed_msg,
+        pk=sign_pk,
+    )
+    assert msg == b'foo'
+
+
+def test_crypto_sign_ed25519_pk_to_curve25519_invalid_pk():
+    with pytest.raises(AssertionError):
+        crypto_sign_ed25519_pk_to_curve25519(b'invalid')
+
+def test_crypto_sign_ed25519_pk_to_curve25519():
+    curve_pk = crypto_sign_ed25519_pk_to_curve25519(b'x' * crypto_sign_ed25519_PUBLICKEYBYTES)
+    assert len(curve_pk) == crypto_scalarmult_curve25519_BYTES
+
+def test_crypto_sign_ed25519_sk_to_curve25519_invalid_sk():
+    with pytest.raises(AssertionError):
+        crypto_sign_ed25519_sk_to_curve25519(b'invalid')
+
+def test_crypto_sign_ed25519_sk_to_curve25519():
+    curve_sk = crypto_sign_ed25519_sk_to_curve25519(b'x' * crypto_sign_ed25519_SECRETKEYBYTES)
+    assert len(curve_sk) == crypto_scalarmult_curve25519_BYTES
+
+def test_crypto_sign_ed25519_sk_to_seed_invalid_sk():
+    with pytest.raises(AssertionError):
+        crypto_sign_ed25519_sk_to_seed(b'invalid')
+
+def test_crypto_sign_ed25519_sk_to_seed():
+    seed = crypto_sign_ed25519_sk_to_seed(b'x' * crypto_sign_ed25519_SECRETKEYBYTES)
+    assert len(seed) == crypto_sign_ed25519_SEEDBYTES
+
+def test_crypto_sign_ed25519_sk_to_pk_invalid_sk():
+    with pytest.raises(AssertionError):
+        crypto_sign_ed25519_sk_to_pk(b'invalid')
+
+def test_crypto_sign_ed25519_sk_to_pk():
+    pk = crypto_sign_ed25519_sk_to_pk(b'x' * crypto_sign_ed25519_SECRETKEYBYTES)
+    assert len(pk) == crypto_sign_ed25519_PUBLICKEYBYTES
