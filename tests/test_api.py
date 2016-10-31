@@ -40,6 +40,8 @@ from csodium import (
     crypto_sign_seed_keypair,
     crypto_sign,
     crypto_sign_open,
+    crypto_sign_detached,
+    crypto_sign_verify_detached,
     crypto_sign_ed25519_PUBLICKEYBYTES,
     crypto_sign_ed25519_SECRETKEYBYTES,
     crypto_sign_ed25519_SEEDBYTES,
@@ -103,6 +105,11 @@ def sign_pk():
 def sign_sk():
     _, sk = crypto_sign_seed_keypair(b'x' * crypto_sign_SEEDBYTES)
     return sk
+
+
+@pytest.fixture
+def sig():
+    return b'x' * crypto_sign_BYTES
 
 
 def test_version():
@@ -646,6 +653,64 @@ def test_crypto_sign_open(sign_pk, sign_sk):
         pk=sign_pk,
     )
     assert msg == b'foo'
+
+
+def test_crypto_sign_detached_invalid_sk():
+    with pytest.raises(AssertionError):
+        crypto_sign_detached(
+            msg=b'foo',
+            sk=b'',
+        )
+
+
+def test_crypto_sign_detached(sign_sk):
+    sig = crypto_sign_detached(
+        msg=b'foo',
+        sk=sign_sk,
+    )
+    assert isinstance(sig, binary_type)
+    assert len(sig) == crypto_sign_BYTES
+
+
+def test_crypto_sign_verify_detached_invalid_sig(sign_pk):
+    with pytest.raises(AssertionError):
+        crypto_sign_verify_detached(
+            msg=b'',
+            sig=b'',
+            pk=sign_pk,
+        )
+
+
+def test_crypto_sign_verify_detached_invalid_pk(sig):
+    with pytest.raises(AssertionError):
+        crypto_sign_verify_detached(
+            msg=b'',
+            sig=sig,
+            pk=b'',
+        )
+
+
+def test_crypto_sign_verify_detached_failure(sig, sign_pk):
+    with pytest.raises(ValueError):
+        crypto_sign_verify_detached(
+            msg=b'',
+            sig=sig,
+            pk=sign_pk,
+        )
+
+
+def test_crypto_sign_verify_detached(sign_pk, sign_sk):
+    msg = b'foo'
+    sig = crypto_sign_detached(
+        msg=msg,
+        sk=sign_sk,
+    )
+    result = crypto_sign_verify_detached(
+        msg=msg,
+        sig=sig,
+        pk=sign_pk,
+    )
+    assert result is True
 
 
 def test_crypto_sign_ed25519_pk_to_curve25519_invalid_pk():

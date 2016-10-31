@@ -434,6 +434,40 @@ def crypto_sign_open(signed_msg, pk):
 
     return binary_type(msg)
 
+
+def crypto_sign_detached(msg, sk):
+    _assert_len('sk', sk, crypto_sign_SECRETKEYBYTES)
+
+    sig = bytearray(crypto_sign_BYTES)
+    _raise_on_error(
+        lib.crypto_sign_detached(
+            ffi.cast("unsigned char *", ffi.from_buffer(sig)),
+            ffi.NULL,
+            msg,
+            len(msg),
+            sk,
+        ),
+    )
+
+    return binary_type(sig)
+
+
+def crypto_sign_verify_detached(msg, sig, pk):
+    _assert_len('sig', sig, crypto_sign_BYTES)
+    _assert_len('pk', pk, crypto_sign_PUBLICKEYBYTES)
+
+    _raise_on_error(
+        lib.crypto_sign_verify_detached(
+            sig,
+            msg,
+            len(msg),
+            pk,
+        ),
+    )
+
+    return True
+
+
 # ed25519 sign specific functions
 crypto_sign_ed25519_SEEDBYTES = lib.crypto_sign_ed25519_seedbytes()
 crypto_sign_ed25519_PUBLICKEYBYTES = lib.crypto_sign_ed25519_publickeybytes()
