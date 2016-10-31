@@ -36,7 +36,7 @@ def _assert_len(name, buf, size, max_size=None):
 # random family.
 def randombytes(size):
     buf = bytearray(size)
-    lib.randombytes(ffi.from_buffer(buf), size)
+    lib.randombytes(ffi.cast("unsigned char *", ffi.from_buffer(buf)), size)
     return binary_type(buf)
 
 
@@ -55,8 +55,8 @@ def crypto_box_keypair():
     sk = bytearray(crypto_box_SECRETKEYBYTES)
     _raise_on_error(
         lib.crypto_box_keypair(
-            ffi.from_buffer(pk),
-            ffi.from_buffer(sk),
+            ffi.cast("unsigned char *", ffi.from_buffer(pk)),
+            ffi.cast("unsigned char *", ffi.from_buffer(sk)),
         ),
     )
 
@@ -70,8 +70,8 @@ def crypto_box_seed_keypair(seed):
     sk = bytearray(crypto_box_SECRETKEYBYTES)
     _raise_on_error(
         lib.crypto_box_seed_keypair(
-            ffi.from_buffer(pk),
-            ffi.from_buffer(sk),
+            ffi.cast("unsigned char *", ffi.from_buffer(pk)),
+            ffi.cast("unsigned char *", ffi.from_buffer(sk)),
             seed,
         ),
     )
@@ -86,7 +86,7 @@ def crypto_box_beforenm(pk, sk):
     k = bytearray(crypto_box_BEFORENMBYTES)
     _raise_on_error(
         lib.crypto_box_beforenm(
-            ffi.from_buffer(k),
+            ffi.cast("unsigned char *", ffi.from_buffer(k)),
             pk,
             sk,
         ),
@@ -103,7 +103,7 @@ def crypto_box(msg, nonce, pk, sk):
     c = bytearray(crypto_box_MACBYTES + len(msg))
     _raise_on_error(
         lib.crypto_box_easy(
-            ffi.from_buffer(c),
+            ffi.cast("unsigned char *", ffi.from_buffer(c)),
             msg,
             len(msg),
             nonce,
@@ -122,7 +122,7 @@ def crypto_box_afternm(msg, nonce, k):
     c = bytearray(crypto_box_MACBYTES + len(msg))
     _raise_on_error(
         lib.crypto_box_easy_afternm(
-            ffi.from_buffer(c),
+            ffi.cast("unsigned char *", ffi.from_buffer(c)),
             msg,
             len(msg),
             nonce,
@@ -141,7 +141,7 @@ def crypto_box_open(c, nonce, pk, sk):
     msg = bytearray(len(c) - crypto_box_MACBYTES)
     _raise_on_error(
         lib.crypto_box_open_easy(
-            ffi.from_buffer(msg),
+            ffi.cast("unsigned char *", ffi.from_buffer(msg)),
             c,
             len(c),
             nonce,
@@ -160,7 +160,7 @@ def crypto_box_open_afternm(c, nonce, k):
     msg = bytearray(len(c) - crypto_box_MACBYTES)
     _raise_on_error(
         lib.crypto_box_open_easy_afternm(
-            ffi.from_buffer(msg),
+            ffi.cast("unsigned char *", ffi.from_buffer(msg)),
             c,
             len(c),
             nonce,
@@ -177,7 +177,7 @@ def crypto_box_seal(msg, pk):
     c = bytearray(len(msg) + crypto_box_SEALBYTES)
     _raise_on_error(
         lib.crypto_box_seal(
-            ffi.from_buffer(c),
+            ffi.cast("unsigned char *", ffi.from_buffer(c)),
             msg,
             len(msg),
             pk,
@@ -194,7 +194,7 @@ def crypto_box_seal_open(c, pk, sk):
     msg = bytearray(len(c) - crypto_box_SEALBYTES)
     _raise_on_error(
         lib.crypto_box_seal_open(
-            ffi.from_buffer(msg),
+            ffi.cast("unsigned char *", ffi.from_buffer(msg)),
             c,
             len(c),
             pk,
@@ -214,8 +214,8 @@ def crypto_box_detached(msg, nonce, pk, sk):
     mac = bytearray(crypto_box_MACBYTES)
     _raise_on_error(
         lib.crypto_box_detached(
-            ffi.from_buffer(c),
-            ffi.from_buffer(mac),
+            ffi.cast("unsigned char *", ffi.from_buffer(c)),
+            ffi.cast("unsigned char *", ffi.from_buffer(mac)),
             msg,
             len(msg),
             nonce,
@@ -236,7 +236,7 @@ def crypto_box_open_detached(c, mac, nonce, pk, sk):
     msg = bytearray(len(c))
     _raise_on_error(
         lib.crypto_box_open_detached(
-            ffi.from_buffer(msg),
+            ffi.cast("unsigned char *", ffi.from_buffer(msg)),
             c,
             mac,
             len(c),
@@ -262,7 +262,7 @@ def crypto_secretbox(msg, nonce, k):
     c = bytearray(crypto_secretbox_MACBYTES + len(msg))
     _raise_on_error(
         lib.crypto_secretbox_easy(
-            ffi.from_buffer(c),
+            ffi.cast("unsigned char *", ffi.from_buffer(c)),
             msg,
             len(msg),
             nonce,
@@ -280,7 +280,7 @@ def crypto_secretbox_open(c, nonce, k):
     msg = bytearray(len(c) - crypto_secretbox_MACBYTES)
     _raise_on_error(
         lib.crypto_secretbox_open_easy(
-            ffi.from_buffer(msg),
+            ffi.cast("unsigned char *", ffi.from_buffer(msg)),
             c,
             len(c),
             nonce,
