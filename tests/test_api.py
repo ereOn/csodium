@@ -28,11 +28,18 @@ from csodium import (
     crypto_secretbox,
     crypto_secretbox_open,
     randombytes,
+    crypto_generichash_BYTES,
+    crypto_generichash_STATEBYTES,
+    crypto_generichash,
+    crypto_generichash_init,
+    crypto_generichash_update,
+    crypto_generichash_final,
     crypto_generichash_blake2b_KEYBYTES,
     crypto_generichash_blake2b_SALTBYTES,
     crypto_generichash_blake2b_PERSONALBYTES,
     crypto_generichash_blake2b_BYTES,
     crypto_generichash_blake2b_salt_personal,
+    crypto_generichash_blake2b_init_salt_personal,
     crypto_sign_BYTES,
     crypto_sign_SEEDBYTES,
     crypto_sign_PUBLICKEYBYTES,
@@ -79,6 +86,11 @@ def k(pk, sk):
 @pytest.fixture
 def mac():
     return b'x' * crypto_box_MACBYTES
+
+
+@pytest.fixture
+def state():
+    return crypto_generichash_init(None)
 
 
 @pytest.fixture
@@ -530,6 +542,147 @@ def test_crypto_secretbox_open(nonce, k):
     assert msg == b'foo'
 
 
+def test_crypto_generichash_key_too_short():
+    with pytest.raises(AssertionError):
+        crypto_generichash(
+            in_=None,
+            key=b'1',
+        )
+
+
+def test_crypto_generichash_invalid_outlen():
+    with pytest.raises(AssertionError):
+        crypto_generichash(
+            in_=None,
+            key=None,
+            outlen=1,
+        )
+
+
+def test_crypto_generichash_null_key():
+    out = crypto_generichash(
+        in_=b'x',
+        key=None,
+    )
+    assert isinstance(out, binary_type)
+    assert len(out) == crypto_generichash_BYTES
+
+
+def test_crypto_generichash_null_in(key):
+    out = crypto_generichash(
+        in_=None,
+        key=key,
+    )
+    assert isinstance(out, binary_type)
+    assert len(out) == crypto_generichash_BYTES
+
+
+def test_crypto_generichash(key):
+    out = crypto_generichash(
+        in_=b'x',
+        key=key,
+    )
+    assert isinstance(out, binary_type)
+    assert len(out) == crypto_generichash_BYTES
+
+
+def test_crypto_generichash_outlen(key):
+    out = crypto_generichash(
+        in_=b'x',
+        key=key,
+        outlen=35,
+    )
+    assert isinstance(out, binary_type)
+    assert len(out) == 35
+
+
+def test_crypto_generichash_init_key_too_short():
+    with pytest.raises(AssertionError):
+        crypto_generichash_init(
+            key=b'1',
+        )
+
+
+def test_crypto_generichash_init_invalid_outlen():
+    with pytest.raises(AssertionError):
+        crypto_generichash_init(
+            key=None,
+            outlen=1,
+        )
+
+
+def test_crypto_generichash_init_null_key():
+    out = crypto_generichash_init(
+        key=None,
+    )
+    assert isinstance(out, bytearray)
+    assert len(out) == crypto_generichash_STATEBYTES
+
+
+def test_crypto_generichash_init(key):
+    out = crypto_generichash_init(
+        key=key,
+    )
+    assert isinstance(out, bytearray)
+    assert len(out) == crypto_generichash_STATEBYTES
+
+
+def test_crypto_generichash_init_outlen(key):
+    out = crypto_generichash_init(
+        key=key,
+        outlen=35,
+    )
+    assert isinstance(out, bytearray)
+    assert len(out) == crypto_generichash_STATEBYTES
+
+
+def test_crypto_generichash_update_state_too_short():
+    with pytest.raises(AssertionError):
+        crypto_generichash_update(
+            state=b'1',
+            in_=b'x',
+        )
+
+
+def test_crypto_generichash_update(state):
+    crypto_generichash_update(
+        state=state,
+        in_=b'x',
+    )
+
+
+def test_crypto_generichash_final_state_too_short():
+    with pytest.raises(AssertionError):
+        crypto_generichash_final(
+            state=b'1',
+        )
+
+
+def test_crypto_generichash_final_invalid_outlen(state):
+    with pytest.raises(AssertionError):
+        crypto_generichash_final(
+            state=state,
+            outlen=1,
+        )
+
+
+def test_crypto_generichash_final(state):
+    out = crypto_generichash_final(
+        state=state,
+    )
+    assert isinstance(out, binary_type)
+    assert len(out) == crypto_generichash_BYTES
+
+
+def test_crypto_generichash_final_outlen(state):
+    out = crypto_generichash_final(
+        state=state,
+        outlen=35,
+    )
+    assert isinstance(out, binary_type)
+    assert len(out) == 35
+
+
 def test_crypto_generichash_blake2b_salt_key_too_short(salt):
     with pytest.raises(AssertionError):
         crypto_generichash_blake2b_salt_personal(
@@ -603,6 +756,78 @@ def test_crypto_generichash_blake2b_salt_outlen(key, salt):
     )
     assert isinstance(out, binary_type)
     assert len(out) == 35
+
+
+def test_crypto_generichash_blake2b_init_salt_key_too_short(salt):
+    with pytest.raises(AssertionError):
+        crypto_generichash_blake2b_init_salt_personal(
+            key=b'1',
+            salt=salt,
+            personal=None,
+        )
+
+
+def test_crypto_generichash_blake2b_init_salt_salt_too_short(key):
+    with pytest.raises(AssertionError):
+        crypto_generichash_blake2b_init_salt_personal(
+            key=key,
+            salt=b'x',
+            personal=None,
+        )
+
+
+def test_crypto_generichash_blake2b_init_salt_personal_too_short(key, salt):
+    with pytest.raises(AssertionError):
+        crypto_generichash_blake2b_init_salt_personal(
+            key=key,
+            salt=salt,
+            personal=b'x',
+        )
+
+
+def test_crypto_generichash_blake2b_init_salt_invalid_outlen(
+    key,
+    salt,
+    personal
+):
+    with pytest.raises(AssertionError):
+        crypto_generichash_blake2b_init_salt_personal(
+            key=key,
+            salt=salt,
+            personal=personal,
+            outlen=1,
+        )
+
+
+def test_crypto_generichash_blake2b_init_salt_personal(key, salt, personal):
+    out = crypto_generichash_blake2b_init_salt_personal(
+        key=key,
+        salt=salt,
+        personal=personal,
+    )
+    assert isinstance(out, bytearray)
+    assert len(out) == crypto_generichash_STATEBYTES
+
+
+def test_crypto_generichash_blake2b_init_salt(key, salt):
+    out = crypto_generichash_blake2b_init_salt_personal(
+        key=key,
+        salt=salt,
+        personal=None,
+    )
+    assert isinstance(out, bytearray)
+    assert len(out) == crypto_generichash_STATEBYTES
+
+
+def test_crypto_generichash_blake2b_init_salt_outlen(key, salt):
+    out = crypto_generichash_blake2b_init_salt_personal(
+        key=key,
+        salt=salt,
+        personal=None,
+        outlen=35,
+    )
+    assert isinstance(out, bytearray)
+    assert len(out) == crypto_generichash_STATEBYTES
 
 
 def test_crypto_sign_keypair():

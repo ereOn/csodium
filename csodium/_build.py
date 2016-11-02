@@ -114,6 +114,32 @@ int crypto_secretbox_open_easy(
     const unsigned char* k
 );
 
+size_t  crypto_generichash_bytes_min(void);
+size_t  crypto_generichash_bytes_max(void);
+size_t  crypto_generichash_bytes(void);
+size_t  crypto_generichash_keybytes_min(void);
+size_t  crypto_generichash_keybytes_max(void);
+size_t  crypto_generichash_keybytes(void);
+const char *crypto_generichash_primitive(void);
+size_t  crypto_generichash_statebytes(void);
+typedef ... crypto_generichash_state;
+
+int crypto_generichash(unsigned char *out, size_t outlen,
+                       const unsigned char *in, unsigned long long inlen,
+                       const unsigned char *key, size_t keylen);
+
+int crypto_generichash_init(crypto_generichash_state *state,
+                            const unsigned char *key,
+                            const size_t keylen, const size_t outlen);
+
+int crypto_generichash_update(crypto_generichash_state *state,
+                              const unsigned char *in,
+                              unsigned long long inlen);
+
+int crypto_generichash_final(crypto_generichash_state *state,
+                             unsigned char *out, const size_t outlen);
+
+
 size_t crypto_generichash_blake2b_bytes_min(void);
 size_t crypto_generichash_blake2b_bytes_max(void);
 size_t crypto_generichash_blake2b_bytes(void);
@@ -122,6 +148,7 @@ size_t crypto_generichash_blake2b_keybytes_max(void);
 size_t crypto_generichash_blake2b_keybytes(void);
 size_t crypto_generichash_blake2b_saltbytes(void);
 size_t crypto_generichash_blake2b_personalbytes(void);
+typedef ... crypto_generichash_blake2b_state;
 
 int crypto_generichash_blake2b_salt_personal(unsigned char *out, size_t outlen,
                                              const unsigned char *in,
@@ -130,6 +157,12 @@ int crypto_generichash_blake2b_salt_personal(unsigned char *out, size_t outlen,
                                              size_t keylen,
                                              const unsigned char *salt,
                                              const unsigned char *personal);
+int crypto_generichash_blake2b_init_salt_personal(
+    crypto_generichash_blake2b_state *state,
+    const unsigned char *key,
+    const size_t keylen, const size_t outlen,
+    const unsigned char *salt,
+    const unsigned char *personal);
 
 size_t  crypto_sign_bytes(void);
 size_t  crypto_sign_seedbytes(void);
@@ -167,7 +200,6 @@ int crypto_sign_ed25519_sk_to_curve25519(unsigned char *curve25519_sk,
 int crypto_sign_ed25519_sk_to_seed(unsigned char *seed,
                                    const unsigned char *sk);
 int crypto_sign_ed25519_sk_to_pk(unsigned char *pk, const unsigned char *sk);
-
 
 ''')
 
