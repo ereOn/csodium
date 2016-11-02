@@ -123,16 +123,13 @@ size_t crypto_generichash_blake2b_keybytes(void);
 size_t crypto_generichash_blake2b_saltbytes(void);
 size_t crypto_generichash_blake2b_personalbytes(void);
 
-int crypto_generichash_blake2b_salt_personal(
-    uint8_t* out,
-    const uint8_t outlen,
-    const void* in,
-    const uint64_t inlen,
-    const void* key,
-    uint8_t keylen,
-    const void* salt,
-    const void* personal
-);
+int crypto_generichash_blake2b_salt_personal(unsigned char *out, size_t outlen,
+                                             const unsigned char *in,
+                                             unsigned long long inlen,
+                                             const unsigned char *key,
+                                             size_t keylen,
+                                             const unsigned char *salt,
+                                             const unsigned char *personal);
 
 size_t  crypto_sign_bytes(void);
 size_t  crypto_sign_seedbytes(void);

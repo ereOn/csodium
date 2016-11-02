@@ -31,6 +31,7 @@ from csodium import (
     crypto_generichash_blake2b_KEYBYTES,
     crypto_generichash_blake2b_SALTBYTES,
     crypto_generichash_blake2b_PERSONALBYTES,
+    crypto_generichash_blake2b_BYTES,
     crypto_generichash_blake2b_salt_personal,
     crypto_sign_BYTES,
     crypto_sign_SEEDBYTES,
@@ -578,9 +579,21 @@ def test_crypto_generichash_blake2b_salt_personal(key, salt, personal):
         personal=personal,
     )
     assert isinstance(out, binary_type)
+    assert len(out) == crypto_generichash_blake2b_BYTES
 
 
 def test_crypto_generichash_blake2b_salt(key, salt):
+    out = crypto_generichash_blake2b_salt_personal(
+        in_=None,
+        key=key,
+        salt=salt,
+        personal=None,
+    )
+    assert isinstance(out, binary_type)
+    assert len(out) == crypto_generichash_blake2b_BYTES
+
+
+def test_crypto_generichash_blake2b_salt_outlen(key, salt):
     out = crypto_generichash_blake2b_salt_personal(
         in_=None,
         key=key,

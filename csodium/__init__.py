@@ -323,7 +323,7 @@ def crypto_generichash_blake2b_salt_personal(
     key,
     salt,
     personal=None,
-    outlen=crypto_generichash_blake2b_BYTES_MAX,
+    outlen=crypto_generichash_blake2b_BYTES,
 ):
     _assert_len(
         'key',
@@ -352,7 +352,7 @@ def crypto_generichash_blake2b_salt_personal(
 
     _raise_on_error(
         lib.crypto_generichash_blake2b_salt_personal(
-            ffi.cast('uint8_t *', ffi.from_buffer(buf)),
+            ffi.cast('unsigned char *', ffi.from_buffer(buf)),
             outlen,
             in_ if in_ is not None else ffi.NULL,
             len(in_ or ()),
