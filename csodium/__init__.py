@@ -302,6 +302,115 @@ def crypto_secretbox_open(c, nonce, k):
     return binary_type(msg)
 
 
+crypto_generichash_BYTES_MIN = lib.crypto_generichash_bytes_min()
+crypto_generichash_BYTES_MAX = lib.crypto_generichash_bytes_max()
+crypto_generichash_BYTES = lib.crypto_generichash_bytes()
+crypto_generichash_KEYBYTES_MIN = lib.crypto_generichash_keybytes_min()
+crypto_generichash_KEYBYTES_MAX = lib.crypto_generichash_keybytes_max()
+crypto_generichash_KEYBYTES = lib.crypto_generichash_keybytes()
+crypto_generichash_PRIMITIVE = lib.crypto_generichash_primitive()
+crypto_generichash_STATEBYTES = lib.crypto_generichash_statebytes()
+
+
+def crypto_generichash(in_, key, outlen=crypto_generichash_BYTES):
+    if key is not None:
+        _assert_len(
+            'key',
+            key,
+            crypto_generichash_KEYBYTES_MIN,
+            crypto_generichash_KEYBYTES_MAX
+        )
+
+    assert crypto_generichash_BYTES_MIN <= outlen <= \
+        crypto_generichash_BYTES_MAX, (
+            "outlen must be between %d and %d" % (
+                crypto_generichash_BYTES_MIN,
+                crypto_generichash_BYTES_MAX,
+            )
+        )
+
+    buf = bytearray(outlen)
+
+    _raise_on_error(
+        lib.crypto_generichash(
+            ffi.cast('unsigned char *', ffi.from_buffer(buf)),
+            outlen,
+            in_ if in_ is not None else ffi.NULL,
+            len(in_ or ()),
+            key if key is not None else ffi.NULL,
+            len(key or ()),
+        ),
+    )
+    return binary_type(buf)
+
+
+def crypto_generichash_init(key, outlen=crypto_generichash_BYTES):
+    if key is not None:
+        _assert_len(
+            'key',
+            key,
+            crypto_generichash_KEYBYTES_MIN,
+            crypto_generichash_KEYBYTES_MAX
+        )
+
+    assert crypto_generichash_BYTES_MIN <= outlen <= \
+        crypto_generichash_BYTES_MAX, (
+            "outlen must be between %d and %d" % (
+                crypto_generichash_BYTES_MIN,
+                crypto_generichash_BYTES_MAX,
+            )
+        )
+
+    state = bytearray(crypto_generichash_STATEBYTES)
+
+    _raise_on_error(
+        lib.crypto_generichash_init(
+            ffi.cast('crypto_generichash_state *', ffi.from_buffer(state)),
+            key if key is not None else ffi.NULL,
+            len(key or ()),
+            outlen,
+        ),
+    )
+    return state
+
+
+def crypto_generichash_update(state, in_):
+    _assert_len('state', state, crypto_generichash_STATEBYTES)
+
+    _raise_on_error(
+        lib.crypto_generichash_update(
+            ffi.cast('crypto_generichash_state *', ffi.from_buffer(state)),
+            in_,
+            len(in_),
+        ),
+    )
+
+    return state
+
+
+def crypto_generichash_final(state, outlen=crypto_generichash_BYTES):
+    _assert_len('state', state, crypto_generichash_STATEBYTES)
+    assert crypto_generichash_BYTES_MIN <= outlen <= \
+        crypto_generichash_BYTES_MAX, (
+            "outlen must be between %d and %d" % (
+                crypto_generichash_BYTES_MIN,
+                crypto_generichash_BYTES_MAX,
+            )
+        )
+
+    buf = bytearray(outlen)
+
+    _raise_on_error(
+        lib.crypto_generichash_final(
+            ffi.cast("crypto_generichash_state *", ffi.from_buffer(state)),
+            ffi.cast("unsigned char *", ffi.from_buffer(buf)),
+            outlen,
+        ),
+    )
+
+    return binary_type(buf)
+
+
 crypto_generichash_blake2b_BYTES_MIN = \
     lib.crypto_generichash_blake2b_bytes_min()
 crypto_generichash_blake2b_BYTES_MAX = \
@@ -323,7 +432,7 @@ def crypto_generichash_blake2b_salt_personal(
     key,
     salt,
     personal=None,
-    outlen=crypto_generichash_blake2b_BYTES_MAX,
+    outlen=crypto_generichash_blake2b_BYTES,
 ):
     _assert_len(
         'key',
@@ -352,7 +461,7 @@ def crypto_generichash_blake2b_salt_personal(
 
     _raise_on_error(
         lib.crypto_generichash_blake2b_salt_personal(
-            ffi.cast('uint8_t *', ffi.from_buffer(buf)),
+            ffi.cast('unsigned char *', ffi.from_buffer(buf)),
             outlen,
             in_ if in_ is not None else ffi.NULL,
             len(in_ or ()),
@@ -363,6 +472,54 @@ def crypto_generichash_blake2b_salt_personal(
         ),
     )
     return binary_type(buf)
+
+
+def crypto_generichash_blake2b_init_salt_personal(
+    key,
+    salt,
+    personal=None,
+    outlen=crypto_generichash_blake2b_BYTES,
+):
+    _assert_len(
+        'key',
+        key,
+        crypto_generichash_blake2b_KEYBYTES_MIN,
+        crypto_generichash_blake2b_KEYBYTES_MAX,
+    )
+    _assert_len('salt', salt, crypto_generichash_blake2b_SALTBYTES)
+
+    if personal is not None:
+        _assert_len(
+            'personal',
+            personal,
+            crypto_generichash_blake2b_PERSONALBYTES,
+        )
+
+    assert crypto_generichash_blake2b_BYTES_MIN <= outlen <= \
+        crypto_generichash_blake2b_BYTES_MAX, (
+            "outlen must be between %d and %d" % (
+                crypto_generichash_blake2b_BYTES_MIN,
+                crypto_generichash_blake2b_BYTES_MAX,
+            )
+        )
+
+    state = bytearray(crypto_generichash_STATEBYTES)
+
+    _raise_on_error(
+        lib.crypto_generichash_blake2b_init_salt_personal(
+            ffi.cast(
+                'crypto_generichash_blake2b_state *',
+                ffi.from_buffer(state)
+            ),
+            key,
+            len(key),
+            outlen,
+            salt,
+            personal if personal is not None else ffi.NULL,
+        ),
+    )
+    return state
+
 
 # crypto_sign family
 crypto_sign_BYTES = lib.crypto_sign_bytes()
